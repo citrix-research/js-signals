@@ -5,7 +5,7 @@
  * JS Signals <http://millermedeiros.github.com/js-signals/>
  * Released under the MIT license
  * Author: Miller Medeiros
- * Version: 1.0.0 - Build: 276 (2015/08/14 02:04 PM)
+ * Version: 1.1.0 - Build: 273 (2015/04/23 12:32 PM)
  */
 
 (function(global){
@@ -90,9 +90,16 @@
             var handlerReturn, params;
             if (this.active && !!this._listener) {
                 params = this.params? this.params.concat(paramsArr) : paramsArr;
-                handlerReturn = this._listener.apply(this.context, params);
-                if (this._isOnce) {
-                    this.detach();
+                try {
+                    handlerReturn = this._listener.apply(this.context, params);
+                } catch(e) {
+                    setTimeout(function() {
+                        throw e;
+                    }, 0);
+                } finally {
+                    if (this._isOnce) {
+                        this.detach();
+                    }
                 }
             }
             return handlerReturn;
@@ -182,10 +189,7 @@
         this._prevParams = null;
 
         // enforce dispatch to aways work on same context (#47)
-        var self = this;
-        this.dispatch = function(){
-            Signal.prototype.dispatch.apply(self, arguments);
-        };
+        this.dispatch = Signal.prototype.dispatch.bind(this);
     }
 
     Signal.prototype = {
@@ -195,7 +199,7 @@
          * @type String
          * @const
          */
-        VERSION : '1.0.0',
+        VERSION : '1.1.0',
 
         /**
          * If Signal should keep record of previously dispatched parameters and
@@ -358,7 +362,7 @@
          * Dispatch/Broadcast Signal to all listeners added to the queue.
          * @param {...*} [params] Parameters that should be passed to each handler.
          */
-        dispatch : function (params) {
+        dispatch : function (/*params*/) {
             if (! this.active) {
                 return;
             }

@@ -25,10 +25,7 @@
         this._prevParams = null;
 
         // enforce dispatch to aways work on same context (#47)
-        var self = this;
-        this.dispatch = function(){
-            Signal.prototype.dispatch.apply(self, arguments);
-        };
+        this.dispatch = Signal.prototype.dispatch.bind(this);
     }
 
     Signal.prototype = {
@@ -201,7 +198,7 @@
          * Dispatch/Broadcast Signal to all listeners added to the queue.
          * @param {...*} [params] Parameters that should be passed to each handler.
          */
-        dispatch : function (params) {
+        dispatch : function (/*params*/) {
             if (! this.active) {
                 return;
             }

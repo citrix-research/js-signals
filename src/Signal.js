@@ -202,9 +202,13 @@
             if (! this.active) {
                 return;
             }
+            
+            var paramsArr = [];
+            for (var i=0; i < arguments.length; i++) {
+                paramsArr.push(arguments[i]);
+            }
 
-            var paramsArr = Array.prototype.slice.call(arguments),
-                n = this._bindings.length,
+            var n = this._bindings.length,
                 bindings;
 
             if (this.memorize) {

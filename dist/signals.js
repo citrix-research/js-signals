@@ -5,7 +5,7 @@
  * JS Signals <http://millermedeiros.github.com/js-signals/>
  * Released under the MIT license
  * Author: Miller Medeiros
- * Version: 1.1.0 - Build: 273 (2015/04/23 12:32 PM)
+ * Version: 1.1.1 - Build: 274 (2015/06/10 06:02 PM)
  */
 
 (function(global){
@@ -199,7 +199,7 @@
          * @type String
          * @const
          */
-        VERSION : '1.1.0',
+        VERSION : '1.1.1',
 
         /**
          * If Signal should keep record of previously dispatched parameters and
@@ -366,9 +366,18 @@
             if (! this.active) {
                 return;
             }
+            
+            /**
+             * When copying the arguments variable using Array.prototype.slice.call V8 disables optimization for the calling method.
+             * We avoid this issue here by coping arguments to a pre-allocated array.
+             * see https://code.google.com/p/v8/issues/detail?id=3037
+             */
+            var len = arguments.length, paramsArr = new Array(len);
+            for (var i=0; i < len; ++i) {
+                paramsArr[i] = arguments[i];
+            }
 
-            var paramsArr = Array.prototype.slice.call(arguments),
-                n = this._bindings.length,
+            var n = this._bindings.length,
                 bindings;
 
             if (this.memorize) {
